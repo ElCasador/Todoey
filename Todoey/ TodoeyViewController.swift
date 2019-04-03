@@ -12,9 +12,22 @@ class TodoeyViewController: UITableViewController {
 
     var itemArray = ["Find Mike","Buy Eggos","Destroy Demogorgon"]
     
+    let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //Sets the Saved Data from the phone
+        //The if let statement is to protect the app from a situation when no default array is present
+        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+            
+            itemArray = items
+            
+        }
+        
     }
+    
+   
     
     //MARK - Table Datasource Methods
     
@@ -72,6 +85,10 @@ class TodoeyViewController: UITableViewController {
             //What happens when the user clicks the Add Item on the UIAlert PopUp
             
             self.itemArray.append(textField.text!)
+            
+            //save the information appened to the array in the USER DEFAULTS for presistance data storage
+            //This does not make the data display on loading though. It is performed in initial ViewDidLoad
+            self.defaults.set(self.itemArray, forKey: "TodoListArray")
             
             //must reload data once alert is completed to complete action
             self.tableView.reloadData()
