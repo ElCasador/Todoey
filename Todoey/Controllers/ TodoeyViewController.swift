@@ -10,24 +10,34 @@ import UIKit
 
 class TodoeyViewController: UITableViewController {
 
-    var itemArray = ["Find Mike","Buy Eggos","Destroy Demogorgon"]
+    var itemArray = [Item]()
     
     let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let newItem = Item()
+        newItem.title = "Find Mike"
+        itemArray.append(newItem)
+        
+        let newItem2 = Item()
+        newItem2.title = "Bananas"
+        itemArray.append(newItem2)
+        
+        let newItem3 = Item()
+        newItem3.title = "Carrots"
+        itemArray.append(newItem3)
+        
         //Sets the Saved Data from the phone
         //The if let statement is to protect the app from a situation when no default array is present
-        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
-            
+        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
+
             itemArray = items
-            
+
         }
         
     }
-    
-   
     
     //MARK - Table Datasource Methods
     
@@ -42,7 +52,11 @@ class TodoeyViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        
+        cell.accessoryType = item.done == true ? .checkmark : .none
         
         return cell
     }
@@ -53,16 +67,18 @@ class TodoeyViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //print(itemArray[indexPath.row]) TESTING PURPOSES
         
-        //This will add/remove a checkmark when the item is selected.
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-            
-        } else {
-            
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        tableView.reloadData()
+        //This will add/remove a checkmark when the item is selected.
+//        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+//
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+//
+//        } else {
+//
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+//        }
 
         
         //Deselects the row like a push-button would work
@@ -84,7 +100,9 @@ class TodoeyViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //What happens when the user clicks the Add Item on the UIAlert PopUp
             
-            self.itemArray.append(textField.text!)
+            let newItem = Item()
+            newItem.title = textField.text!
+            self.itemArray.append(newItem)
             
             //save the information appened to the array in the USER DEFAULTS for presistance data storage
             //This does not make the data display on loading though. It is performed in initial ViewDidLoad
