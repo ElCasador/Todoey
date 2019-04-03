@@ -12,30 +12,14 @@ class TodoeyViewController: UITableViewController {
 
     var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
+        print(dataFilePath)
         
-        let newItem2 = Item()
-        newItem2.title = "Bananas"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "Carrots"
-        itemArray.append(newItem3)
-        
-        //Sets the Saved Data from the phone
-        //The if let statement is to protect the app from a situation when no default array is present
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-
-            itemArray = items
-
-        }
+        loadItems()
         
     }
     
@@ -69,18 +53,8 @@ class TodoeyViewController: UITableViewController {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
-        tableView.reloadData()
-        //This will add/remove a checkmark when the item is selected.
-//        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-//
-//            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-//
-//        } else {
-//
-//            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-//        }
-
-        
+        saveItems()
+  
         //Deselects the row like a push-button would work
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -104,12 +78,7 @@ class TodoeyViewController: UITableViewController {
             newItem.title = textField.text!
             self.itemArray.append(newItem)
             
-            //save the information appened to the array in the USER DEFAULTS for presistance data storage
-            //This does not make the data display on loading though. It is performed in initial ViewDidLoad
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            
-            //must reload data once alert is completed to complete action
-            self.tableView.reloadData()
+            self.saveItems()
         }
         
         alert.addTextField { (alertTextField) in
@@ -121,6 +90,36 @@ class TodoeyViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
         
     }
+    
+    //MARK - Model Manupulation Methods
+    
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+        
+        tableView.reloadData()
+        
+    }
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Error decoding item array, \(error)")
+            }
+            
+        }
+        
+    }
+    
     
 
 }
