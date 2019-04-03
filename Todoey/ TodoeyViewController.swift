@@ -10,7 +10,7 @@ import UIKit
 
 class TodoeyViewController: UITableViewController {
 
-    let itemArray = ["Find Mike","Buy Eggos","Destroy Demogorgon"]
+    var itemArray = ["Find Mike","Buy Eggos","Destroy Demogorgon"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +57,36 @@ class TodoeyViewController: UITableViewController {
         
         
     }
+    
+    //MARK - Add New Items
+    
+    //This is the plus @top right corner. It's called a Bar Button and the System Item is set to "Add" on the Attributes selector
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField()
+        
+        //Creates the alert
+        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            //What happens when the user clicks the Add Item on the UIAlert PopUp
+            
+            self.itemArray.append(textField.text!)
+            
+            //must reload data once alert is completed to complete action
+            self.tableView.reloadData()
+        }
+        
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+        }
+        alert.addAction(action)
+        
+        present(alert, animated: true, completion: nil)
+        
+    }
+    
 
 }
 
